@@ -18,6 +18,7 @@ export const translations = {
     localeTag: 'en-US',
     ui: {
       language: 'Language',
+      currency: 'Currency',
       mode: 'Mode:',
       student: 'Student',
       teacher: 'Teacher',
@@ -412,6 +413,7 @@ export const translations = {
     localeTag: 'es-ES',
     ui: {
       language: 'Idioma',
+      currency: 'Moneda',
       mode: 'Modo:',
       student: 'Estudiante',
       teacher: 'Profesor',

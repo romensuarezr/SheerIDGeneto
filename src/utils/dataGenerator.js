@@ -27,7 +27,10 @@ export const generateRandomData = (lang = 'en') => {
     });
   };
 
-  const formatCurrency = (amount) => amount.toLocaleString(tag, { style: 'currency', currency: 'USD' });
+  // NOTE: monetary amounts are stored as raw numbers on purpose.
+  // They are formatted at render time with formatMoney() from the
+  // language context, so switching language or currency re-renders
+  // instantly without regenerating the data.
 
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
@@ -158,10 +161,10 @@ export const generateRandomData = (lang = 'en') => {
         registrar: `${faker.person.lastName()}, ${faker.person.firstName()}`
     },
     tuition: {
-        base: formatCurrency(baseTuition),
-        differential: formatCurrency(diffTuition),
+        base: baseTuition,
+        differential: diffTuition,
         fees: fees,
-        total: formatCurrency(totalCharges)
+        total: totalCharges
     },
     courses: {
         current: termCourses,
@@ -297,9 +300,8 @@ export const generateTeacherData = (lang = 'en') => {
     idCardSubtitle: T.idCardSubtitle,
     idColor: faker.helpers.arrayElement(['#dc2626', '#059669', '#7c3aed', '#d97706', '#0891b2']),
 
-    // Salary info
+    // Salary info (raw number; formatted at render time via formatMoney())
     baseSalary: baseSalary,
-    salaryFormatted: baseSalary.toLocaleString(tag, {style: 'currency', currency: 'USD'}),
 
     // Officials
     officials: {

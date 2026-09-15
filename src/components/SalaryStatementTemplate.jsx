@@ -2,8 +2,7 @@ import React, { forwardRef } from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
 
 const SalaryStatementTemplate = forwardRef(({ data }, ref) => {
-  const { t } = useLanguage();
-  const localeTag = t('localeTag');
+  const { t, formatMoney } = useLanguage();
 
   const grossPay = data.baseSalary / 26; // Bi-weekly gross
   const federalTax = grossPay * 0.22;
@@ -13,8 +12,6 @@ const SalaryStatementTemplate = forwardRef(({ data }, ref) => {
   const retirement = grossPay * 0.05;
   const totalDeductions = federalTax + stateTax + socialSecurity + medicare + retirement;
   const netPay = grossPay - totalDeductions;
-
-  const formatCurrency = (amount) => amount.toLocaleString(localeTag, {style: 'currency', currency: 'USD'});
 
   return (
     <div
@@ -96,10 +93,10 @@ const SalaryStatementTemplate = forwardRef(({ data }, ref) => {
           </div>
           <div style={{ border: '1px solid #059669', fontSize: '8px' }}>
             <div style={{ padding: '3px', borderBottom: '1px solid #000000' }}>
-              <strong>{t('doc.salary.regularSalary')}</strong> {formatCurrency(grossPay)} {t('doc.salary.current')} | {formatCurrency(grossPay * 12)} {t('doc.salary.ytd')}
+              <strong>{t('doc.salary.regularSalary')}</strong> {formatMoney(grossPay)} {t('doc.salary.current')} | {formatMoney(grossPay * 12)} {t('doc.salary.ytd')}
             </div>
             <div style={{ padding: '3px', backgroundColor: '#f0fdf4', fontWeight: 'bold' }}>
-              <strong>{t('doc.salary.totalGross')}</strong> {formatCurrency(grossPay)}
+              <strong>{t('doc.salary.totalGross')}</strong> {formatMoney(grossPay)}
             </div>
           </div>
         </div>
@@ -118,16 +115,16 @@ const SalaryStatementTemplate = forwardRef(({ data }, ref) => {
           </div>
           <div style={{ border: '1px solid #dc2626', fontSize: '8px' }}>
             <div style={{ padding: '2px', borderBottom: '1px solid #e5e7eb' }}>
-              <strong>{t('doc.salary.federalTax')}</strong> {formatCurrency(federalTax)} | <strong>{t('doc.salary.stateTax')}</strong> {formatCurrency(stateTax)}
+              <strong>{t('doc.salary.federalTax')}</strong> {formatMoney(federalTax)} | <strong>{t('doc.salary.stateTax')}</strong> {formatMoney(stateTax)}
             </div>
             <div style={{ padding: '2px', borderBottom: '1px solid #e5e7eb' }}>
-              <strong>{t('doc.salary.socialSecurity')}</strong> {formatCurrency(socialSecurity)} | <strong>{t('doc.salary.medicare')}</strong> {formatCurrency(medicare)}
+              <strong>{t('doc.salary.socialSecurity')}</strong> {formatMoney(socialSecurity)} | <strong>{t('doc.salary.medicare')}</strong> {formatMoney(medicare)}
             </div>
             <div style={{ padding: '2px', borderBottom: '1px solid #e5e7eb' }}>
-              <strong>{t('doc.salary.retirement')}</strong> {formatCurrency(retirement)}
+              <strong>{t('doc.salary.retirement')}</strong> {formatMoney(retirement)}
             </div>
             <div style={{ padding: '3px', backgroundColor: '#fef2f2', fontWeight: 'bold' }}>
-              <strong>{t('doc.salary.totalDeductions')}</strong> {formatCurrency(totalDeductions)}
+              <strong>{t('doc.salary.totalDeductions')}</strong> {formatMoney(totalDeductions)}
             </div>
           </div>
         </div>
@@ -142,7 +139,7 @@ const SalaryStatementTemplate = forwardRef(({ data }, ref) => {
           fontSize: '10px'
         }}>
           <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '2px' }}>{t('doc.salary.netPay')}</div>
-          <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{formatCurrency(netPay)}</div>
+          <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{formatMoney(netPay)}</div>
           <div style={{ fontSize: '8px', opacity: 0.8 }}>{t('doc.salary.toBeDeposited')}</div>
         </div>
 

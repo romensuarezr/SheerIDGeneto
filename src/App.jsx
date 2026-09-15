@@ -21,7 +21,7 @@ import EmploymentLetterTemplate from './components/EmploymentLetterTemplate';
 import SalaryStatementTemplate from './components/SalaryStatementTemplate';
 
 const App = () => {
-  const { lang, setLang, t } = useLanguage();
+  const { lang, setLang, t, currency, setCurrency } = useLanguage();
   const [formData, setFormData] = useState(() => generateRandomData(lang));
 
   const [exportMode, setExportMode] = useState("stitched-horizontal"); 
@@ -342,6 +342,22 @@ const App = () => {
           >
             <SelectItem key="en">English</SelectItem>
             <SelectItem key="es">Español</SelectItem>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-2 mr-2">
+          <span className="text-xs text-foreground/60">{t('ui.currency')}:</span>
+          <Select
+            aria-label={t('ui.currency')}
+            selectedKeys={[currency]}
+            onSelectionChange={(keys) => setCurrency(Array.from(keys)[0])}
+            size="sm"
+            className="w-28"
+            disallowEmptySelection
+          >
+            <SelectItem key="USD">USD ($)</SelectItem>
+            <SelectItem key="EUR">EUR (€)</SelectItem>
+            <SelectItem key="GBP">GBP (£)</SelectItem>
           </Select>
         </div>
 
