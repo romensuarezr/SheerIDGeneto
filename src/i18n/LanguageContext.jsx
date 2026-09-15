@@ -2,7 +2,10 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 import { translations } from './translations';
 
 const STORAGE_KEY = 'sheerid-lang';
+const CURRENCY_STORAGE_KEY = 'sheerid-currency';
 export const SUPPORTED_LANGS = ['en', 'es'];
+export const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'GBP'];
+export const DEFAULT_CURRENCY = 'USD';
 
 const LanguageContext = createContext(null);
 
@@ -32,6 +35,21 @@ export const LanguageProvider = ({ children }) => {
     }
   }, []);
 
+  const [currency, setCurrencyState] = useState(() => {
+    const stored = typeof localStorage !== 'undefined' ? localStorage.getItem(CURRENCY_STORAGE_KEY) : null;
+    return SUPPORTED_CURRENCIES.includes(stored) ? stored : DEFAULT_CURRENCY;
+  });
+
+  const setCurrency = useCallback((next) => {
+    if (!SUPPORTED_CURRENCIES.includes(next)) return;
+    setCurrencyState(next);
+    try {
+      localStorage.setItem(CURRENCY_STORAGE_KEY, next);
+    } catch {
+      // localStorage unavailable: keep in-memory only
+    }
+  }, []);
+
   // t('ui.mode') -> translated string; falls back to English, then to the key itself.
   const t = useCallback(
     (path) => {
@@ -43,8 +61,21 @@ export const LanguageProvider = ({ children }) => {
     [lang]
   );
 
+  // Single formatting entry point for every monetary amount in the app.
+  // Uses the active UI locale and the user-selected currency, so switching
+  // either one re-renders all amounts instantly without regenerating data.
+  const formatMoney = useCallback(
+    (amount) => {
+      const n = typeof amount === 'number' ? amount : Number(amount);
+      if (!Number.isFinite(n)) return '';
+      const tag = (translations[lang] && translations[lang].localeTag) || translations.en.localeTag;
+      return new Intl.NumberFormat(tag, { style: 'currency', currency }).format(n);
+    },
+    [lang, currency]
+  );
+
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t }}>
+    <LanguageContext.Provider value={{ lang, setLang, t, currency, setCurrency, formatMoney }}>
       {children}
     </LanguageContext.Provider>
   );

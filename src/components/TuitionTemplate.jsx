@@ -2,9 +2,7 @@ import React, { forwardRef } from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
 
 const TuitionTemplate = forwardRef(({ data }, ref) => {
-  const { t } = useLanguage();
-  const localeTag = t('localeTag');
-  const fmt = (n) => n.toLocaleString(localeTag, { style: 'currency', currency: 'USD' });
+  const { t, formatMoney } = useLanguage();
   const fees = (data.tuition && data.tuition.fees) || {
       studentService: 340,
       computerService: 210,
@@ -71,39 +69,39 @@ const TuitionTemplate = forwardRef(({ data }, ref) => {
             <tbody>
                 <tr>
                     <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', width: '70%' }}>{t('doc.tuition.tuitionLine')}</td>
-                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{data.tuition ? data.tuition.base : fmt(9555)}</td>
+                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{formatMoney(data.tuition ? data.tuition.base : 9555)}</td>
                 </tr>
                 <tr>
                     <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6' }}>{t('doc.tuition.differentialTuition')} {data.college}</td>
-                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{data.tuition ? data.tuition.differential : fmt(975)}</td>
+                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{formatMoney(data.tuition ? data.tuition.differential : 975)}</td>
                 </tr>
                 <tr>
                     <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6' }}>{t('doc.tuition.fees.studentService')}</td>
-                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{fmt(fees.studentService)}</td>
+                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{formatMoney(fees.studentService)}</td>
                 </tr>
                 <tr>
                     <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6' }}>{t('doc.tuition.fees.computerService')}</td>
-                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{fmt(fees.computerService)}</td>
+                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{formatMoney(fees.computerService)}</td>
                 </tr>
                 <tr>
                     <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6' }}>{t('doc.tuition.fees.library')}</td>
-                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{fmt(fees.library)}</td>
+                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{formatMoney(fees.library)}</td>
                 </tr>
                 <tr>
                     <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6' }}>{t('doc.tuition.fees.medical')}</td>
-                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{fmt(fees.medical)}</td>
+                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{formatMoney(fees.medical)}</td>
                 </tr>
                 <tr>
                     <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6' }}>{t('doc.tuition.fees.other')}</td>
-                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{fmt(fees.other)}</td>
+                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{formatMoney(fees.other)}</td>
                 </tr>
                 <tr>
                     <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6' }}>{t('doc.tuition.fees.intlOps')}</td>
-                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{fmt(fees.intlOps)}</td>
+                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{formatMoney(fees.intlOps)}</td>
                 </tr>
                 <tr>
                     <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6' }}>{t('doc.tuition.fees.insurance')}</td>
-                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{fmt(fees.insurance)}</td>
+                    <td style={{ padding: '12px 15px', borderBottom: '1px solid #dee2e6', textAlign: 'right' }}>{formatMoney(fees.insurance)}</td>
                 </tr>
             </tbody>
         </table>
@@ -113,15 +111,15 @@ const TuitionTemplate = forwardRef(({ data }, ref) => {
                 <tbody>
                     <tr>
                         <td style={{ padding: '5px' }}>{t('doc.tuition.totalCharges')}</td>
-                        <td style={{ padding: '5px', textAlign: 'right' }}>{data.tuition ? data.tuition.total : fmt(13730)}</td>
+                        <td style={{ padding: '5px', textAlign: 'right' }}>{formatMoney(data.tuition ? data.tuition.total : 13730)}</td>
                     </tr>
                     <tr>
                         <td style={{ padding: '5px' }}>{t('doc.tuition.paymentsCredits').replace('{date}', data.statementDate)}</td>
-                        <td style={{ padding: '5px', textAlign: 'right' }}>({data.tuition ? data.tuition.total : fmt(13730)})</td>
+                        <td style={{ padding: '5px', textAlign: 'right' }}>({formatMoney(data.tuition ? data.tuition.total : 13730)})</td>
                     </tr>
                     <tr>
                         <td style={{ padding: '5px', fontWeight: 'bold', fontSize: '18px', color: '#50212f' }}>{t('doc.tuition.balanceDue')}</td>
-                        <td style={{ padding: '5px', textAlign: 'right', fontWeight: 'bold', fontSize: '18px', color: '#50212f' }}>{fmt(0)}</td>
+                        <td style={{ padding: '5px', textAlign: 'right', fontWeight: 'bold', fontSize: '18px', color: '#50212f' }}>{formatMoney(0)}</td>
                     </tr>
                 </tbody>
             </table>
