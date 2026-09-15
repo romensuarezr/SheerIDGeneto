@@ -9,7 +9,8 @@ document generator (names + addresses instead of fictional placeholders).
 - **US filter:** currently active, 4-year institutions with a street address
   (~2,845 records).
 - **US fields per record:** `n` name, `a` street address, `c` city, `s` state,
-  `z` ZIP, `p` phone.
+  `z` ZIP, `p` phone, `d` real domain when Hipo name-matching found one
+  (~35% of records; the generator derives a plausible `.edu` otherwise).
 - **Intl source:** Hipo `university-domains-list` (MIT license,
   `https://github.com/Hipo/university-domains-list`) — worldwide names and
   domains, no street addresses.

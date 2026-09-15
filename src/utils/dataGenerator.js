@@ -8,7 +8,8 @@ const dataFor = (lang) => (translations[lang] ? translations[lang].data : transl
 const localeTagFor = (lang) => (lang === 'es' ? 'es-ES' : 'en-US');
 
 // Real university data, refreshed at build time (see scripts/fetch-universities.mjs):
-//  - US pool (Urban Institute / IPEDS): { n, a, c, s, z, p } with real street addresses.
+//  - US pool (Urban Institute / IPEDS): { n, a, c, s, z, p } with real street
+//    addresses; `d` holds a real domain when Hipo name-matching found one.
 //  - Intl pool (Hipo university-domains-list): { n, c, d } names + domains only;
 //    the address is composed with faker from the country name.
 // Normalized shape: { name, street|null, city|null, state|null, zip|null, country, domain|null }.
@@ -21,7 +22,7 @@ const ALL_UNIVERSITIES = [
         state: u.s,
         zip: u.z,
         country: 'United States',
-        domain: null,
+        domain: u.d || null,
       }))
     : []),
   ...(Array.isArray(universitiesIntl)
@@ -46,6 +47,21 @@ const formatUniversityAddress = (u, faker) =>
   u.street
     ? `${u.street}, ${u.city}, ${u.state} ${u.zip}`
     : `${faker.location.streetAddress()}, ${faker.location.city()}, ${u.country}`;
+
+// Email helpers: real domains when the dataset has them, otherwise a
+// plausible .edu derived from the institution name. Names are
+// de-accented so 'José García' becomes 'jose.garcia@...'.
+const slugify = (s) =>
+  s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+
+const resolveDomain = (u) => u.domain || `${slugify(u.name) || 'university'}.edu`;
+
+const emailFor = (firstName, lastName, domain) =>
+  `${slugify(firstName)}.${slugify(lastName)}@${domain}`;
 
 // Short abbreviation derived from the institution's initials, e.g.
 // "Arizona State University" -> "ASU". Used for employee IDs.
@@ -198,6 +214,11 @@ export const generateRandomData = (lang = 'en') => {
       : `${faker.number.int({min: 100, max: 9999})} University Blvd, ${faker.location.city()}, ${faker.location.state({ abbreviated: true })}, ${faker.location.zipCode()}`,
     studentName: `${lastName} ${firstName}`,
     studentID: `${faker.string.numeric(6)}-${faker.string.numeric(4)}`,
+    studentEmail: emailFor(
+      firstName,
+      lastName,
+      resolveDomain(realUniversity || { name: D.university, domain: null })
+    ),
     passportNumber: faker.string.alphanumeric(9).toUpperCase(), // Added passport
     address: `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state()}`,
     term: D.terms.current,
@@ -345,7 +366,7 @@ export const generateTeacherData = (lang = 'en') => {
     // Office Info
     office: T.officeFormat.replace('{building}', building).replace('{number}', officeNumber),
     phone: `(${faker.string.numeric(3)}) ${faker.string.numeric(3)}-${faker.string.numeric(4)} ext. ${phoneExt}`,
-    email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${selectedUniversity.domain || selectedUniversity.name.toLowerCase().replace(/\s+/g, '') + '.edu'}`,
+    email: emailFor(firstName, lastName, resolveDomain(selectedUniversity)),
 
     // Academic Info
     department: selectedDepartment.name,
