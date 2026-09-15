@@ -1,9 +1,12 @@
 import React, { forwardRef } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const StudentCardBackTemplate = forwardRef(({ data }, ref) => {
+  const { t } = useLanguage();
+
   return (
-    <div 
-      ref={ref} 
+    <div
+      ref={ref}
       style={{
         width: '750px',
         height: '480px',
@@ -39,7 +42,7 @@ const StudentCardBackTemplate = forwardRef(({ data }, ref) => {
             marginBottom: '9px',
             letterSpacing: '0.75px'
           }}>
-            CARDHOLDER ADDRESS
+            {t('doc.studentCard.cardholderAddress')}
           </div>
           <div style={{ fontSize: '21px', color: '#333', lineHeight: 1.4 }}>
             {data.address}
@@ -54,7 +57,7 @@ const StudentCardBackTemplate = forwardRef(({ data }, ref) => {
           margin: '22px 0',
           flex: 1
         }}>
-          {data.cardNotice || 'This card is the property of the university and must be returned upon request. If found, please return to the nearest university office.'}
+          {data.cardNotice}
         </div>
 
         {/* Signature section */}
@@ -74,7 +77,7 @@ const StudentCardBackTemplate = forwardRef(({ data }, ref) => {
               {data.studentName}
             </div>
             <div style={{ fontSize: '15px', color: '#999' }}>
-              Cardholder Signature
+              {t('doc.studentCard.cardholderSignature')}
             </div>
           </div>
           <div style={{ width: '120px', height: '120px' }}>

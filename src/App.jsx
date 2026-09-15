@@ -5,6 +5,7 @@ import html2canvas from 'html2canvas';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { generateRandomData, generateTeacherData } from './utils/dataGenerator';
+import { useLanguage } from './i18n/LanguageContext';
 
 import TuitionTemplate from './components/TuitionTemplate';
 import TranscriptTemplate from './components/TranscriptTemplate';
@@ -20,7 +21,8 @@ import EmploymentLetterTemplate from './components/EmploymentLetterTemplate';
 import SalaryStatementTemplate from './components/SalaryStatementTemplate';
 
 const App = () => {
-  const [formData, setFormData] = useState(() => generateRandomData());
+  const { lang, setLang, t } = useLanguage();
+  const [formData, setFormData] = useState(() => generateRandomData(lang));
 
   const [exportMode, setExportMode] = useState("stitched-horizontal"); 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -71,7 +73,7 @@ const App = () => {
   };
 
   const regenerateData = () => {
-    const newData = userMode === "student" ? generateRandomData() : generateTeacherData();
+    const newData = userMode === "student" ? generateRandomData(lang) : generateTeacherData(lang);
     setFormData(prev => ({
         ...newData,
         universityLogo: prev.universityLogo,
@@ -82,12 +84,24 @@ const App = () => {
 
   const switchMode = (mode) => {
     setUserMode(mode);
-    const newData = mode === "student" ? generateRandomData() : generateTeacherData();
+    const newData = mode === "student" ? generateRandomData(lang) : generateTeacherData(lang);
     setFormData(prev => ({
         ...newData,
         universityLogo: prev.universityLogo,
         studentPhoto: mode === "student" ? prev.studentPhoto || prev.teacherPhoto : null,
         teacherPhoto: mode === "teacher" ? prev.teacherPhoto || prev.studentPhoto : null
+    }));
+  };
+
+  const handleLanguageChange = (newLang) => {
+    if (!newLang || newLang === lang) return;
+    setLang(newLang);
+    const newData = userMode === "student" ? generateRandomData(newLang) : generateTeacherData(newLang);
+    setFormData(prev => ({
+        ...newData,
+        universityLogo: prev.universityLogo,
+        studentPhoto: prev.studentPhoto || prev.teacherPhoto,
+        teacherPhoto: prev.teacherPhoto || prev.studentPhoto
     }));
   };
 
@@ -159,7 +173,7 @@ const App = () => {
       });
     } catch (err) {
       console.error(err);
-      alert("Export failed");
+      alert(t('ui.exportFailed'));
       setIsGenerating(false);
       containerRef.current.classList.remove('exporting');
       containerRef.current.style.cssText = originalStyle;
@@ -226,7 +240,7 @@ const App = () => {
 
     } catch (err) {
       console.error(err);
-      alert("Export failed");
+      alert(t('ui.exportFailed'));
       setIsGenerating(false);
     }
   };
@@ -270,7 +284,7 @@ const App = () => {
         });
     } catch (err) {
         console.error(err);
-        alert("Export failed");
+        alert(t('ui.exportFailed'));
         setIsGenerating(false);
     }
   };
@@ -316,27 +330,44 @@ const App = () => {
     <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground">
       {/* Top Toolbar */}
       <div className="h-14 flex-shrink-0 border-b border-divider bg-content1 z-30 flex items-center px-4 gap-3">
+        <div className="flex items-center gap-2 mr-2">
+          <span className="text-xs text-foreground/60">{t('ui.language')}:</span>
+          <Select
+            aria-label={t('ui.language')}
+            selectedKeys={[lang]}
+            onSelectionChange={(keys) => handleLanguageChange(Array.from(keys)[0])}
+            size="sm"
+            className="w-28"
+            disallowEmptySelection
+          >
+            <SelectItem key="en">English</SelectItem>
+            <SelectItem key="es">Español</SelectItem>
+          </Select>
+        </div>
+
+        <Divider orientation="vertical" className="h-8" />
+
         <div className="flex items-center gap-2 mr-4">
-          <span className="text-xs text-foreground/60">Mode:</span>
+          <span className="text-xs text-foreground/60">{t('ui.mode')}</span>
           <div className="flex rounded-lg border border-divider overflow-hidden">
             <button 
               className={`px-3 py-1 text-xs font-medium ${userMode === "student" ? "bg-primary text-white" : "bg-content2 text-foreground/60"}`}
               onClick={() => switchMode("student")}
             >
-              Student
+              {t('ui.student')}
             </button>
             <button 
               className={`px-3 py-1 text-xs font-medium ${userMode === "teacher" ? "bg-primary text-white" : "bg-content2 text-foreground/60"}`}
               onClick={() => switchMode("teacher")}
             >
-              Teacher
+              {t('ui.teacher')}
             </button>
           </div>
         </div>
 
         <Divider orientation="vertical" className="h-8" />
 
-        <span className="font-bold text-primary text-sm">Stitch:</span>
+        <span className="font-bold text-primary text-sm">{t('ui.stitch')}</span>
         <Button 
           color="primary" 
           variant="flat"
@@ -344,7 +375,7 @@ const App = () => {
           onClick={() => exportStitched(false)}
           isLoading={isGenerating}
         >
-          Grid
+          {t('ui.grid')}
         </Button>
         <Button 
           color="primary" 
@@ -353,12 +384,12 @@ const App = () => {
           onClick={() => exportStitched(true)}
           isLoading={isGenerating}
         >
-          Horizontal
+          {t('ui.horizontal')}
         </Button>
 
         <Divider orientation="vertical" className="h-8" />
 
-        <span className="font-bold text-primary text-sm">ZIP:</span>
+        <span className="font-bold text-primary text-sm">{t('ui.zip')}</span>
         <label className="flex items-center gap-1 text-xs cursor-pointer">
           <input 
             type="checkbox" 
@@ -366,7 +397,7 @@ const App = () => {
             onChange={(e) => setIncludeStudentCard(e.target.checked)}
             className="w-3 h-3 rounded"
           />
-          +ID Card
+          {t('ui.includeIdCard')}
         </label>
         <Button 
           color="success" 
@@ -374,12 +405,12 @@ const App = () => {
           onClick={exportZipped}
           isLoading={isGenerating}
         >
-          Download ZIP
+          {t('ui.downloadZip')}
         </Button>
 
         <Divider orientation="vertical" className="h-8" />
 
-        <span className="font-bold text-foreground/60 text-sm">Single:</span>
+        <span className="font-bold text-foreground/60 text-sm">{t('ui.single')}</span>
         {userMode === "student" ? (
           <>
             <Button 
@@ -389,7 +420,7 @@ const App = () => {
               onClick={() => exportSingle(hiddenAdmissionRef, "Admission_Letter.png")}
               isLoading={isGenerating}
             >
-              Admission
+              {t('ui.admission')}
             </Button>
             <Button 
               color="default" 
@@ -398,7 +429,7 @@ const App = () => {
               onClick={() => exportSingle(hiddenEnrollmentRef, "Enrollment_Certificate.png")}
               isLoading={isGenerating}
             >
-              Enrollment
+              {t('ui.enrollment')}
             </Button>
             <Button 
               color="default" 
@@ -407,7 +438,7 @@ const App = () => {
               onClick={() => exportSingle(hiddenCardFrontRef, "Student_ID_Front.png")}
               isLoading={isGenerating}
             >
-              ID Front
+              {t('ui.idFront')}
             </Button>
             <Button 
               color="default" 
@@ -416,7 +447,7 @@ const App = () => {
               onClick={() => exportSingle(hiddenCardBackRef, "Student_ID_Back.png")}
               isLoading={isGenerating}
             >
-              ID Back
+              {t('ui.idBack')}
             </Button>
           </>
         ) : (
@@ -428,7 +459,7 @@ const App = () => {
               onClick={() => exportSingle(hiddenTeachingCertRef, "Teaching_Certificate.png")}
               isLoading={isGenerating}
             >
-              Certificate
+              {t('ui.certificate')}
             </Button>
             <Button 
               color="default" 
@@ -437,7 +468,7 @@ const App = () => {
               onClick={() => exportSingle(hiddenEmploymentLetterRef, "Employment_Letter.png")}
               isLoading={isGenerating}
             >
-              Employment
+              {t('ui.employment')}
             </Button>
             <Button 
               color="default" 
@@ -446,7 +477,7 @@ const App = () => {
               onClick={() => exportSingle(hiddenSalaryStatementRef, "Salary_Statement.png")}
               isLoading={isGenerating}
             >
-              Salary
+              {t('ui.salary')}
             </Button>
             <Button 
               color="default" 
@@ -455,7 +486,7 @@ const App = () => {
               onClick={() => exportSingle(hiddenTeacherIdFrontRef, "Teacher_ID_Front.png")}
               isLoading={isGenerating}
             >
-              ID Front
+              {t('ui.idFront')}
             </Button>
             <Button 
               color="default" 
@@ -464,7 +495,7 @@ const App = () => {
               onClick={() => exportSingle(hiddenTeacherIdBackRef, "Teacher_ID_Back.png")}
               isLoading={isGenerating}
             >
-              ID Back
+              {t('ui.idBack')}
             </Button>
           </>
         )}
@@ -475,14 +506,14 @@ const App = () => {
         <div className="w-80 flex-shrink-0 border-r border-divider bg-content1 z-20">
           <ScrollShadow className="h-full p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-primary">Input Data</h2>
+              <h2 className="text-xl font-bold text-primary">{t('ui.inputData')}</h2>
               <Button 
                 color="secondary" 
                 variant="flat"
                 size="sm"
                 onClick={regenerateData}
               >
-                Randomize
+                {t('ui.randomize')}
               </Button>
             </div>
             
@@ -490,20 +521,20 @@ const App = () => {
               {/* Images Section */}
               <div className="flex gap-3">
                 <div className="flex-1">
-                  <label className="block text-xs font-medium text-foreground mb-1">University Logo</label>
+                  <label className="block text-xs font-medium text-foreground mb-1">{t('ui.universityLogo')}</label>
                   <Button 
                     as="label" 
                     variant="flat" 
                     size="sm" 
                     className="w-full cursor-pointer"
                   >
-                    Choose File
+                    {t('ui.chooseFile')}
                     <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
                   </Button>
                 </div>
                 <div className="flex-1">
                   <label className="block text-xs font-medium text-foreground mb-1">
-                    {userMode === "student" ? "Student Photo" : "Teacher Photo"}
+                    {userMode === "student" ? t('ui.studentPhoto') : t('ui.teacherPhoto')}
                   </label>
                   <Button 
                     as="label" 
@@ -511,69 +542,69 @@ const App = () => {
                     size="sm" 
                     className="w-full cursor-pointer"
                   >
-                    Choose File
+                    {t('ui.chooseFile')}
                     <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
                   </Button>
                 </div>
               </div>
 
               <Divider className="my-1" />
-              <h3 className="text-sm font-semibold text-foreground/70">University Info</h3>
+              <h3 className="text-sm font-semibold text-foreground/70">{t('ui.universityInfo')}</h3>
               
-              <Input label="University Name" name="universityName" value={formData.universityName} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
-              <Input label="University Address" name="universityAddress" value={formData.universityAddress} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+              <Input label={t('ui.universityName')} name="universityName" value={formData.universityName} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+              <Input label={t('ui.universityAddress')} name="universityAddress" value={formData.universityAddress} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
 
               <Divider className="my-1" />
               <h3 className="text-sm font-semibold text-foreground/70">
-                {userMode === "student" ? "Student Info" : "Teacher Info"}
+                {userMode === "student" ? t('ui.studentInfo') : t('ui.teacherInfo')}
               </h3>
               
               {userMode === "student" ? (
-                <Input label="Student Name" name="studentName" value={formData.studentName} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+                <Input label={t('ui.studentName')} name="studentName" value={formData.studentName} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
               ) : (
-                <Input label="Teacher Name" name="teacherFullName" value={formData.teacherFullName} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+                <Input label={t('ui.teacherName')} name="teacherFullName" value={formData.teacherFullName} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
               )}
               {userMode === "student" ? (
                 <>
-                  <Input label="Student ID" name="studentID" value={formData.studentID} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
-                  <Input label="Address" name="address" value={formData.address} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+                  <Input label={t('ui.studentId')} name="studentID" value={formData.studentID} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+                  <Input label={t('ui.address')} name="address" value={formData.address} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
                   
                   <Divider className="my-1" />
-                  <h3 className="text-sm font-semibold text-foreground/70">Academic Info</h3>
+                  <h3 className="text-sm font-semibold text-foreground/70">{t('ui.academicInfo')}</h3>
                   
-                  <Input label="Term" name="term" value={formData.term} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
-                  <Input label="Major" name="major" value={formData.major} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
-                  <Input label="Program" name="program" value={formData.program} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
-                  <Input label="College" name="college" value={formData.college} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+                  <Input label={t('ui.term')} name="term" value={formData.term} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+                  <Input label={t('ui.major')} name="major" value={formData.major} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+                  <Input label={t('ui.program')} name="program" value={formData.program} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+                  <Input label={t('ui.college')} name="college" value={formData.college} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
                 </>
               ) : (
                 <>
-                  <Input label="Employee ID" name="employeeID" value={formData.employeeID} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
-                  <Input label="Address" name="address" value={formData.address} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+                  <Input label={t('ui.employeeId')} name="employeeID" value={formData.employeeID} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+                  <Input label={t('ui.address')} name="address" value={formData.address} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
                   
                   <Divider className="my-1" />
-                  <h3 className="text-sm font-semibold text-foreground/70">Employment Info</h3>
+                  <h3 className="text-sm font-semibold text-foreground/70">{t('ui.employmentInfo')}</h3>
                   
-                  <Input label="Department" name="department" value={formData.department} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
-                  <Input label="Position" name="position" value={formData.position} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
-                  <Input label="College" name="college" value={formData.college} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
-                  <Input label="Hire Date" name="hireDate" value={formData.hireDate} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+                  <Input label={t('ui.department')} name="department" value={formData.department} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+                  <Input label={t('ui.position')} name="position" value={formData.position} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+                  <Input label={t('ui.college')} name="college" value={formData.college} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+                  <Input label={t('ui.hireDate')} name="hireDate" value={formData.hireDate} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
                 </>
               )}
               
               <Divider className="my-1" />
-              <h3 className="text-sm font-semibold text-foreground/70">Dates</h3>
+              <h3 className="text-sm font-semibold text-foreground/70">{t('ui.dates')}</h3>
               
-              <Input label="Statement Date" name="statementDate" value={formData.statementDate} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
-              <Input label="Due Date" name="dueDate" value={formData.dueDate} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
-              <Input label="Issue Date" name="issueDate" value={formData.issueDate} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+              <Input label={t('ui.statementDate')} name="statementDate" value={formData.statementDate} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+              <Input label={t('ui.dueDate')} name="dueDate" value={formData.dueDate} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+              <Input label={t('ui.issueDate')} name="issueDate" value={formData.issueDate} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
               
               <Divider className="my-1" />
-              <h3 className="text-sm font-semibold text-foreground/70">Student ID Card</h3>
+              <h3 className="text-sm font-semibold text-foreground/70">{t('ui.idCardSection')}</h3>
               
-              <Input label="Card Subtitle" name="cardSubtitle" value={formData.cardSubtitle} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
-              <Input label="Card Issue Date" name="cardIssueDate" value={formData.cardIssueDate} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
-              <Input label="Card Valid Until" name="cardValidDate" value={formData.cardValidDate} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+              <Input label={t('ui.cardSubtitle')} name="cardSubtitle" value={formData.cardSubtitle} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+              <Input label={t('ui.cardIssueDate')} name="cardIssueDate" value={formData.cardIssueDate} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+              <Input label={t('ui.cardValidUntil')} name="cardValidDate" value={formData.cardValidDate} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
             </div>
           </ScrollShadow>
         </div>
@@ -639,7 +670,7 @@ const App = () => {
         {/* Canvas Switcher Tabs - Floating at Top */}
         <div className="absolute top-6 z-40">
             <Tabs 
-                aria-label="Canvas Selection" 
+                aria-label={t('ui.canvasSelection')} 
                 color="primary" 
                 variant="bordered"
                 selectedKey={activeCanvas}
@@ -651,9 +682,9 @@ const App = () => {
                     tabContent: "group-data-[selected=true]:text-white text-zinc-400 font-medium"
                 }}
             >
-                <Tab key="main" title={userMode === "student" ? "Standard Documents (3)" : "Core Documents (3)"} />
-                <Tab key="extra" title={userMode === "student" ? "Extra Documents (2)" : "Extra Documents"} />
-                <Tab key="card" title={userMode === "student" ? "Student ID Card" : "Faculty ID Card"} />
+                <Tab key="main" title={userMode === "student" ? t('ui.tabs.standardStudent') : t('ui.tabs.coreTeacher')} />
+                <Tab key="extra" title={userMode === "student" ? t('ui.tabs.extraStudent') : t('ui.tabs.extraTeacher')} />
+                <Tab key="card" title={userMode === "student" ? t('ui.tabs.studentCard') : t('ui.tabs.facultyCard')} />
             </Tabs>
         </div>
 
@@ -667,7 +698,7 @@ const App = () => {
         
         {/* Zoom Controls */}
         <div className="absolute bottom-8 right-8 flex gap-2 z-30">
-            <Button isIconOnly color="secondary" variant="flat" onClick={handleZoomOut} aria-label="Zoom Out">
+            <Button isIconOnly color="secondary" variant="flat" onClick={handleZoomOut} aria-label={t('ui.zoomOut')}>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 12h-15" />
                 </svg>
@@ -675,7 +706,7 @@ const App = () => {
             <div className="bg-zinc-800 text-white px-3 py-2 rounded-lg flex items-center font-mono text-sm">
                 {Math.round(scale * 100)}%
             </div>
-            <Button isIconOnly color="secondary" variant="flat" onClick={handleZoomIn} aria-label="Zoom In">
+            <Button isIconOnly color="secondary" variant="flat" onClick={handleZoomIn} aria-label={t('ui.zoomIn')}>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
@@ -709,7 +740,7 @@ const App = () => {
                                     dragMomentum={false}
                                     className="relative group document-card"
                                 >
-                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">Tuition Statement</div>
+                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">{t('ui.labels.tuitionStatement')}</div>
                                     <div className="shadow-2xl transition-shadow hover:shadow-blue-500/20">
                                         <TuitionTemplate ref={tuitionRef} data={formData} />
                                     </div>
@@ -720,7 +751,7 @@ const App = () => {
                                     dragMomentum={false}
                                     className="relative group document-card"
                                 >
-                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">Transcript</div>
+                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">{t('ui.labels.transcript')}</div>
                                     <div className="shadow-2xl transition-shadow hover:shadow-blue-500/20">
                                         <TranscriptTemplate ref={transcriptRef} data={formData} />
                                     </div>
@@ -731,7 +762,7 @@ const App = () => {
                                     dragMomentum={false}
                                     className="relative group document-card"
                                 >
-                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">Course Schedule</div>
+                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">{t('ui.labels.courseSchedule')}</div>
                                     <div className="shadow-2xl transition-shadow hover:shadow-blue-500/20">
                                         <ScheduleTemplate ref={scheduleRef} data={formData} />
                                     </div>
@@ -744,7 +775,7 @@ const App = () => {
                                     dragMomentum={false}
                                     className="relative group document-card"
                                 >
-                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">Teaching Certificate</div>
+                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">{t('ui.labels.teachingCertificate')}</div>
                                     <div className="shadow-2xl transition-shadow hover:shadow-blue-500/20">
                                         <TeachingCertificateTemplate ref={teachingCertRef} data={formData} />
                                     </div>
@@ -755,7 +786,7 @@ const App = () => {
                                     dragMomentum={false}
                                     className="relative group document-card"
                                 >
-                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">Employment Letter</div>
+                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">{t('ui.labels.employmentLetter')}</div>
                                     <div className="shadow-2xl transition-shadow hover:shadow-blue-500/20">
                                         <EmploymentLetterTemplate data={formData} />
                                     </div>
@@ -766,7 +797,7 @@ const App = () => {
                                     dragMomentum={false}
                                     className="relative group document-card"
                                 >
-                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">Salary Statement</div>
+                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">{t('ui.labels.salaryStatement')}</div>
                                     <div className="shadow-2xl transition-shadow hover:shadow-blue-500/20">
                                         <SalaryStatementTemplate data={formData} />
                                     </div>
@@ -795,7 +826,7 @@ const App = () => {
                                     dragMomentum={false}
                                     className="relative group document-card"
                                 >
-                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">Admission Letter</div>
+                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">{t('ui.labels.admissionLetter')}</div>
                                     <div className="shadow-2xl transition-shadow hover:shadow-blue-500/20">
                                         <AdmissionLetterTemplate ref={admissionRef} data={formData} />
                                     </div>
@@ -806,7 +837,7 @@ const App = () => {
                                     dragMomentum={false}
                                     className="relative group document-card"
                                 >
-                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">Enrollment Cert</div>
+                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">{t('ui.labels.enrollmentCert')}</div>
                                     <div className="shadow-2xl transition-shadow hover:shadow-blue-500/20">
                                         <EnrollmentCertificateTemplate ref={enrollmentRef} data={formData} />
                                     </div>
@@ -816,8 +847,8 @@ const App = () => {
                             <div className="flex items-center justify-center h-96">
                                 <div className="text-center text-foreground/60">
                                     <div className="text-6xl mb-4">📋</div>
-                                    <div className="text-lg font-medium mb-2">Additional Teacher Documents</div>
-                                    <div className="text-sm">Coming soon: Performance reviews, schedules, etc.</div>
+                                    <div className="text-lg font-medium mb-2">{t('ui.additionalTeacherDocs')}</div>
+                                    <div className="text-sm">{t('ui.comingSoon')}</div>
                                 </div>
                             </div>
                         )}
@@ -843,7 +874,7 @@ const App = () => {
                                     dragMomentum={false}
                                     className="relative group document-card"
                                 >
-                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">Student ID (Front)</div>
+                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">{t('ui.labels.studentIdFront')}</div>
                                     <div className="shadow-2xl transition-shadow hover:shadow-blue-500/20">
                                         <StudentCardFrontTemplate ref={cardFrontRef} data={formData} />
                                     </div>
@@ -854,7 +885,7 @@ const App = () => {
                                     dragMomentum={false}
                                     className="relative group document-card"
                                 >
-                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">Student ID (Back)</div>
+                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">{t('ui.labels.studentIdBack')}</div>
                                     <div className="shadow-2xl transition-shadow hover:shadow-blue-500/20">
                                         <StudentCardBackTemplate ref={cardBackRef} data={formData} />
                                     </div>
@@ -867,7 +898,7 @@ const App = () => {
                                     dragMomentum={false}
                                     className="relative group document-card"
                                 >
-                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">Faculty ID (Front)</div>
+                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">{t('ui.labels.facultyIdFront')}</div>
                                     <div className="shadow-2xl transition-shadow hover:shadow-blue-500/20">
                                         <TeacherIdFrontTemplate ref={teacherIdFrontRef} data={formData} />
                                     </div>
@@ -878,7 +909,7 @@ const App = () => {
                                     dragMomentum={false}
                                     className="relative group document-card"
                                 >
-                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">Faculty ID (Back)</div>
+                                    <div className="absolute -top-8 left-0 bg-zinc-800 text-white px-3 py-1 rounded-t text-sm doc-label shadow-lg">{t('ui.labels.facultyIdBack')}</div>
                                     <div className="shadow-2xl transition-shadow hover:shadow-blue-500/20">
                                         <TeacherIdBackTemplate ref={teacherIdBackRef} data={formData} />
                                     </div>
