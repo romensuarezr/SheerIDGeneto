@@ -66,6 +66,10 @@ const AdmissionLetterTemplate = forwardRef(({ data }, ref) => {
                             <td>{data.passportNumber}</td>
                         </tr>
                         <tr>
+                            <td style={{ padding: '8px 0', fontWeight: 'bold', color: '#555' }}>{t('doc.admission.email')}</td>
+                            <td>{data.studentEmail}</td>
+                        </tr>
+                        <tr>
                             <td style={{ padding: '8px 0', fontWeight: 'bold', color: '#555' }}>{t('doc.admission.program')}</td>
                             <td>{data.program}</td>
                         </tr>
