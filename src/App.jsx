@@ -5,7 +5,10 @@ import html2canvas from 'html2canvas';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { generateRandomData, generateTeacherData } from './utils/dataGenerator';
+import { formatUniversityAddress, resolveDomain, emailFor } from './utils/universities';
+import { fakerES, fakerEN } from '@faker-js/faker';
 import { useLanguage } from './i18n/LanguageContext';
+import UniversityPicker from './components/UniversityPicker';
 
 import TuitionTemplate from './components/TuitionTemplate';
 import TranscriptTemplate from './components/TranscriptTemplate';
@@ -44,6 +47,40 @@ const App = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Free text in the university picker: keep it, don't touch domain/address.
+  const handleUniversityTextChange = (text) => {
+    setFormData(prev => ({ ...prev, universityName: text }));
+  };
+
+  // Explicit university selection: rewrite name, address, domain and
+  // recompute the email with the current person's name. The uploaded logo
+  // (if any) is kept: it always wins over Clearbit/monogram.
+  const handleUniversitySelect = (u) => {
+    const faker = lang === 'es' ? fakerES : fakerEN;
+    setFormData(prev => {
+      const domain = resolveDomain(u);
+      const next = {
+        ...prev,
+        universityName: u.name,
+        universityAddress: formatUniversityAddress(u, faker),
+        universityDomain: domain,
+      };
+      if (userMode === 'student') {
+        const parts = (prev.studentName || '').split(' ').filter(Boolean);
+        if (parts.length >= 2) {
+          next.studentEmail = emailFor(parts[parts.length - 1], parts[0], domain);
+        }
+      } else {
+        const clean = (prev.teacherFullName || '').replace(/^Dr\.\s*/, '');
+        const parts = clean.split(' ').filter(Boolean);
+        if (parts.length >= 2) {
+          next.email = emailFor(parts[0], parts[parts.length - 1], domain);
+        }
+      }
+      return next;
+    });
   };
 
   const handleLogoUpload = (e) => {
@@ -567,7 +604,7 @@ const App = () => {
               <Divider className="my-1" />
               <h3 className="text-sm font-semibold text-foreground/70">{t('ui.universityInfo')}</h3>
               
-              <Input label={t('ui.universityName')} name="universityName" value={formData.universityName} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+              <UniversityPicker label={t('ui.universityName')} value={formData.universityName} onSelect={handleUniversitySelect} onTextChange={handleUniversityTextChange} />
               <Input label={t('ui.universityAddress')} name="universityAddress" value={formData.universityAddress} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
 
               <Divider className="my-1" />

@@ -1,77 +1,16 @@
 import { fakerES, fakerEN } from '@faker-js/faker';
 import { translations } from '../i18n/translations.js';
-import universities from '../data/universities.json' with { type: 'json' };
-import universitiesIntl from '../data/universities_intl.json' with { type: 'json' };
+import {
+  pickUniversity,
+  formatUniversityAddress,
+  universityAbbr,
+  resolveDomain,
+  emailFor,
+} from './universities.js';
 
 const fakerFor = (lang) => (lang === 'es' ? fakerES : fakerEN);
 const dataFor = (lang) => (translations[lang] ? translations[lang].data : translations.en.data);
 const localeTagFor = (lang) => (lang === 'es' ? 'es-ES' : 'en-US');
-
-// Real university data, refreshed at build time (see scripts/fetch-universities.mjs):
-//  - US pool (Urban Institute / IPEDS): { n, a, c, s, z, p } with real street
-//    addresses; `d` holds a real domain when Hipo name-matching found one.
-//  - Intl pool (Hipo university-domains-list): { n, c, d } names + domains only;
-//    the address is composed with faker from the country name.
-// Normalized shape: { name, street|null, city|null, state|null, zip|null, country, domain|null }.
-const ALL_UNIVERSITIES = [
-  ...(Array.isArray(universities)
-    ? universities.map((u) => ({
-        name: u.n,
-        street: u.a,
-        city: u.c,
-        state: u.s,
-        zip: u.z,
-        country: 'United States',
-        domain: u.d || null,
-      }))
-    : []),
-  ...(Array.isArray(universitiesIntl)
-    ? universitiesIntl.map((u) => ({
-        name: u.n,
-        street: null,
-        city: null,
-        state: null,
-        zip: null,
-        country: u.c,
-        domain: u.d,
-      }))
-    : []),
-];
-
-const pickUniversity = () =>
-  ALL_UNIVERSITIES.length > 0
-    ? ALL_UNIVERSITIES[Math.floor(Math.random() * ALL_UNIVERSITIES.length)]
-    : null;
-
-const formatUniversityAddress = (u, faker) =>
-  u.street
-    ? `${u.street}, ${u.city}, ${u.state} ${u.zip}`
-    : `${faker.location.streetAddress()}, ${faker.location.city()}, ${u.country}`;
-
-// Email helpers: real domains when the dataset has them, otherwise a
-// plausible .edu derived from the institution name. Names are
-// de-accented so 'José García' becomes 'jose.garcia@...'.
-const slugify = (s) =>
-  s
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '');
-
-const resolveDomain = (u) => u.domain || `${slugify(u.name) || 'university'}.edu`;
-
-const emailFor = (firstName, lastName, domain) =>
-  `${slugify(firstName)}.${slugify(lastName)}@${domain}`;
-
-// Short abbreviation derived from the institution's initials, e.g.
-// "Arizona State University" -> "ASU". Used for employee IDs.
-const universityAbbr = (name) =>
-  name
-    .split(/\s+/)
-    .map((w) => (w[0] || '').toUpperCase())
-    .join('')
-    .replace(/[^A-Z]/g, '')
-    .slice(0, 4) || 'UNIV';
 
 export const generateRandomData = (lang = 'en') => {
   const faker = fakerFor(lang);
@@ -209,6 +148,7 @@ export const generateRandomData = (lang = 'en') => {
   return {
     universityName: university,
     universityLogo: '/university-logo.png',
+    universityDomain: resolveDomain(realUniversity || { name: D.university, domain: null }),
     universityAddress: realUniversity
       ? formatUniversityAddress(realUniversity, faker)
       : `${faker.number.int({min: 100, max: 9999})} University Blvd, ${faker.location.city()}, ${faker.location.state({ abbreviated: true })}, ${faker.location.zipCode()}`,
@@ -352,6 +292,7 @@ export const generateTeacherData = (lang = 'en') => {
     universityState: selectedUniversity.state,
     universityAbbr: selectedUniversity.abbr,
     universityLogo: '/university-logo.png',
+    universityDomain: resolveDomain(selectedUniversity),
     universityAddress: realUniversity
       ? formatUniversityAddress(realUniversity, faker)
       : `${faker.number.int({min: 100, max: 9999})} University Drive, ${selectedUniversity.city}, ${selectedUniversity.state} ${faker.location.zipCode()}`,

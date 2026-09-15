@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
+import UniversityLogo, { isUploadedLogo } from './UniversityLogo';
 
 const TeacherIdBackTemplate = forwardRef(({ data }, ref) => {
   const { t } = useLanguage();
@@ -98,14 +99,13 @@ const TeacherIdBackTemplate = forwardRef(({ data }, ref) => {
             </div>
           </div>
           <div style={{ width: '120px', height: '120px' }}>
-            {data.universityLogo ? (
-              <img src={data.universityLogo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-            ) : (
-              <svg width="120" height="120" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" fill="#4a5568"/>
-                <text x="50" y="55" textAnchor="middle" fill="white" fontSize="14">LOGO</text>
-              </svg>
-            )}
+            <UniversityLogo
+              uploadedLogo={isUploadedLogo(data.universityLogo) ? data.universityLogo : null}
+              domain={data.universityDomain}
+              name={data.universityName}
+              size="100%"
+              bg="#4a5568"
+            />
           </div>
         </div>
       </div>
