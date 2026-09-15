@@ -45,9 +45,28 @@ const App = () => {
   const enrollmentRef = useRef(null);
   const containerRef = useRef(null);
 
+  // Derive an email from a free-text full name, using the name as displayed
+  // ("First [Middle] Last"), so the email always matches the visible name.
+  const emailFromFullName = (fullName, domain) => {
+    const parts = (fullName || '').replace(/^Dr\.\s*/i, '').split(' ').filter(Boolean);
+    if (parts.length < 2 || !domain) return null;
+    return emailFor(parts[0], parts[parts.length - 1], domain);
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      const next = { ...prev, [name]: value };
+      // Keep the derived email in sync when the person's name is edited by hand.
+      if (name === 'studentName') {
+        const derived = emailFromFullName(value, prev.universityDomain);
+        if (derived) next.studentEmail = derived;
+      } else if (name === 'teacherFullName') {
+        const derived = emailFromFullName(value, prev.universityDomain);
+        if (derived) next.email = derived;
+      }
+      return next;
+    });
   };
 
   // Free text in the university picker: keep it, don't touch domain/address.
@@ -69,16 +88,11 @@ const App = () => {
         universityDomain: domain,
       };
       if (userMode === 'student') {
-        const parts = (prev.studentName || '').split(' ').filter(Boolean);
-        if (parts.length >= 2) {
-          next.studentEmail = emailFor(parts[parts.length - 1], parts[0], domain);
-        }
+        const derived = emailFromFullName(prev.studentName, domain);
+        if (derived) next.studentEmail = derived;
       } else {
-        const clean = (prev.teacherFullName || '').replace(/^Dr\.\s*/, '');
-        const parts = clean.split(' ').filter(Boolean);
-        if (parts.length >= 2) {
-          next.email = emailFor(parts[0], parts[parts.length - 1], domain);
-        }
+        const derived = emailFromFullName(prev.teacherFullName, domain);
+        if (derived) next.email = derived;
       }
       return next;
     });
@@ -632,6 +646,11 @@ const App = () => {
                 <Input label={t('ui.studentName')} name="studentName" value={formData.studentName} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
               ) : (
                 <Input label={t('ui.teacherName')} name="teacherFullName" value={formData.teacherFullName} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+              )}
+              {userMode === "student" ? (
+                <Input label={t('ui.studentEmail')} name="studentEmail" value={formData.studentEmail || ''} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+              ) : (
+                <Input label={t('ui.email')} name="email" value={formData.email || ''} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
               )}
               {userMode === "student" ? (
                 <>
