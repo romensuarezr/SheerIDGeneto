@@ -164,7 +164,7 @@ export const generateRandomData = (lang = 'en') => {
     term: D.terms.current,
     nextTerm: D.terms.next,
     major: selectedMajor.name,
-    program: selectedMajor.program,
+    program: faker.helpers.arrayElement(selectedMajor.programs),
     college: selectedMajor.college,
     statementDate: formatDate(statementDate),
     dueDate: formatDate(dueDate),
