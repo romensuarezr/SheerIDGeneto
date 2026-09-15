@@ -295,7 +295,7 @@ export const translations = {
       university: 'Hachimi University',
       majors: [
         {
-          name: 'Computer Science', college: 'College of Science and Engineering', prefix: 'CS', kind: 'science',
+          name: 'Computer Science', college: 'School of Engineering', prefix: 'CS', kind: 'science',
           programs: [
             'BSc Computer Science',
             'BSc Data Science',
@@ -309,7 +309,7 @@ export const translations = {
           ],
         },
         {
-          name: 'Business Administration', college: 'McCoy College of Business', prefix: 'BA', kind: 'business',
+          name: 'Business Administration', college: 'School of Business and Economics', prefix: 'BA', kind: 'business',
           programs: [
             'BBA Business Administration',
             'BSc Economics',
@@ -322,7 +322,7 @@ export const translations = {
           ],
         },
         {
-          name: 'Psychology', college: 'College of Liberal Arts', prefix: 'PSY', kind: 'arts',
+          name: 'Psychology', college: 'Faculty of Psychology', prefix: 'PSY', kind: 'arts',
           programs: [
             'BA Psychology',
             'BSc Psychology',
@@ -335,7 +335,7 @@ export const translations = {
           ],
         },
         {
-          name: 'Biology', college: 'College of Science and Engineering', prefix: 'BIO', kind: 'science',
+          name: 'Biology', college: 'Faculty of Science', prefix: 'BIO', kind: 'science',
           programs: [
             'BSc Biology',
             'BSc Biotechnology',
@@ -348,7 +348,7 @@ export const translations = {
           ],
         },
         {
-          name: 'Marketing', college: 'McCoy College of Business', prefix: 'MKT', kind: 'business',
+          name: 'Marketing', college: 'School of Business and Economics', prefix: 'MKT', kind: 'business',
           programs: [
             'BBA Marketing',
             'BA Advertising and Public Relations',
@@ -788,7 +788,7 @@ export const translations = {
       university: 'Hachimi University',
       majors: [
         {
-          name: 'Informática', college: 'Facultad de Ciencias e Ingeniería', prefix: 'CS', kind: 'science',
+          name: 'Informática', college: 'Escuela de Ingeniería', prefix: 'CS', kind: 'science',
           programs: [
             'Grado en Ingeniería Informática',
             'Grado en Ciencia de Datos',
@@ -802,7 +802,7 @@ export const translations = {
           ],
         },
         {
-          name: 'Administración de Empresas', college: 'Facultad de Negocios McCoy', prefix: 'BA', kind: 'business',
+          name: 'Administración de Empresas', college: 'Facultad de Ciencias Económicas y Empresariales', prefix: 'BA', kind: 'business',
           programs: [
             'Grado en Administración y Dirección de Empresas',
             'Grado en Economía',
@@ -815,7 +815,7 @@ export const translations = {
           ],
         },
         {
-          name: 'Psicología', college: 'Facultad de Letras', prefix: 'PSY', kind: 'arts',
+          name: 'Psicología', college: 'Facultad de Psicología', prefix: 'PSY', kind: 'arts',
           programs: [
             'Grado en Psicología',
             'Máster Universitario en Psicología General Sanitaria',
@@ -826,7 +826,7 @@ export const translations = {
           ],
         },
         {
-          name: 'Biología', college: 'Facultad de Ciencias e Ingeniería', prefix: 'BIO', kind: 'science',
+          name: 'Biología', college: 'Facultad de Ciencias', prefix: 'BIO', kind: 'science',
           programs: [
             'Grado en Biología',
             'Grado en Biotecnología',
@@ -839,7 +839,7 @@ export const translations = {
           ],
         },
         {
-          name: 'Marketing', college: 'Facultad de Negocios McCoy', prefix: 'MKT', kind: 'business',
+          name: 'Marketing', college: 'Facultad de Ciencias Económicas y Empresariales', prefix: 'MKT', kind: 'business',
           programs: [
             'Grado en Marketing',
             'Grado en Publicidad y Relaciones Públicas',
