@@ -1,9 +1,61 @@
 import { fakerES, fakerEN } from '@faker-js/faker';
 import { translations } from '../i18n/translations.js';
+import universities from '../data/universities.json' with { type: 'json' };
+import universitiesIntl from '../data/universities_intl.json' with { type: 'json' };
 
 const fakerFor = (lang) => (lang === 'es' ? fakerES : fakerEN);
 const dataFor = (lang) => (translations[lang] ? translations[lang].data : translations.en.data);
 const localeTagFor = (lang) => (lang === 'es' ? 'es-ES' : 'en-US');
+
+// Real university data, refreshed at build time (see scripts/fetch-universities.mjs):
+//  - US pool (Urban Institute / IPEDS): { n, a, c, s, z, p } with real street addresses.
+//  - Intl pool (Hipo university-domains-list): { n, c, d } names + domains only;
+//    the address is composed with faker from the country name.
+// Normalized shape: { name, street|null, city|null, state|null, zip|null, country, domain|null }.
+const ALL_UNIVERSITIES = [
+  ...(Array.isArray(universities)
+    ? universities.map((u) => ({
+        name: u.n,
+        street: u.a,
+        city: u.c,
+        state: u.s,
+        zip: u.z,
+        country: 'United States',
+        domain: null,
+      }))
+    : []),
+  ...(Array.isArray(universitiesIntl)
+    ? universitiesIntl.map((u) => ({
+        name: u.n,
+        street: null,
+        city: null,
+        state: null,
+        zip: null,
+        country: u.c,
+        domain: u.d,
+      }))
+    : []),
+];
+
+const pickUniversity = () =>
+  ALL_UNIVERSITIES.length > 0
+    ? ALL_UNIVERSITIES[Math.floor(Math.random() * ALL_UNIVERSITIES.length)]
+    : null;
+
+const formatUniversityAddress = (u, faker) =>
+  u.street
+    ? `${u.street}, ${u.city}, ${u.state} ${u.zip}`
+    : `${faker.location.streetAddress()}, ${faker.location.city()}, ${u.country}`;
+
+// Short abbreviation derived from the institution's initials, e.g.
+// "Arizona State University" -> "ASU". Used for employee IDs.
+const universityAbbr = (name) =>
+  name
+    .split(/\s+/)
+    .map((w) => (w[0] || '').toUpperCase())
+    .join('')
+    .replace(/[^A-Z]/g, '')
+    .slice(0, 4) || 'UNIV';
 
 export const generateRandomData = (lang = 'en') => {
   const faker = fakerFor(lang);
@@ -27,16 +79,15 @@ export const generateRandomData = (lang = 'en') => {
     });
   };
 
-  // NOTE: monetary amounts are stored as raw numbers on purpose.
-  // They are formatted at render time with formatMoney() from the
-  // language context, so switching language or currency re-renders
-  // instantly without regenerating the data.
+  const formatCurrency = (amount) => amount.toLocaleString(tag, { style: 'currency', currency: 'USD' });
 
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
 
-  // Fictional university brand: kept identical in every language
-  const university = D.university;
+  // Real university from build-time data; falls back to the fictional
+  // brand when the dataset is unavailable.
+  const realUniversity = pickUniversity();
+  const university = realUniversity ? realUniversity.name : D.university;
 
   // Course Data Pool based on Major (localized pools from translations)
   const majors = D.majors;
@@ -142,7 +193,9 @@ export const generateRandomData = (lang = 'en') => {
   return {
     universityName: university,
     universityLogo: '/university-logo.png',
-    universityAddress: `${faker.number.int({min: 100, max: 9999})} University Blvd, ${faker.location.city()}, ${faker.location.state({ abbreviated: true })}, ${faker.location.zipCode()}`,
+    universityAddress: realUniversity
+      ? formatUniversityAddress(realUniversity, faker)
+      : `${faker.number.int({min: 100, max: 9999})} University Blvd, ${faker.location.city()}, ${faker.location.state({ abbreviated: true })}, ${faker.location.zipCode()}`,
     studentName: `${lastName} ${firstName}`,
     studentID: `${faker.string.numeric(6)}-${faker.string.numeric(4)}`,
     passportNumber: faker.string.alphanumeric(9).toUpperCase(), // Added passport
@@ -161,10 +214,10 @@ export const generateRandomData = (lang = 'en') => {
         registrar: `${faker.person.lastName()}, ${faker.person.firstName()}`
     },
     tuition: {
-        base: baseTuition,
-        differential: diffTuition,
+        base: formatCurrency(baseTuition),
+        differential: formatCurrency(diffTuition),
         fees: fees,
-        total: totalCharges
+        total: formatCurrency(totalCharges)
     },
     courses: {
         current: termCourses,
@@ -208,8 +261,18 @@ export const generateTeacherData = (lang = 'en') => {
   const lastName = faker.person.lastName();
   const title = faker.helpers.arrayElement(T.titles);
 
-  // University/Institution (proper nouns: same in every language)
-  const selectedUniversity = faker.helpers.arrayElement(T.universities);
+  // University/Institution (proper nouns: same in every language).
+  // Real institution from build-time data; falls back to the curated list.
+  const realUniversity = pickUniversity();
+  const selectedUniversity = realUniversity
+    ? {
+        name: realUniversity.name,
+        city: realUniversity.city || faker.location.city(),
+        state: realUniversity.state || faker.location.state({ abbreviated: true }),
+        abbr: universityAbbr(realUniversity.name),
+        domain: realUniversity.domain,
+      }
+    : { ...faker.helpers.arrayElement(T.universities), domain: null };
 
   // Department and subjects (localized)
   const selectedDepartment = faker.helpers.arrayElement(T.departments);
@@ -268,7 +331,9 @@ export const generateTeacherData = (lang = 'en') => {
     universityState: selectedUniversity.state,
     universityAbbr: selectedUniversity.abbr,
     universityLogo: '/university-logo.png',
-    universityAddress: `${faker.number.int({min: 100, max: 9999})} University Drive, ${selectedUniversity.city}, ${selectedUniversity.state} ${faker.location.zipCode()}`,
+    universityAddress: realUniversity
+      ? formatUniversityAddress(realUniversity, faker)
+      : `${faker.number.int({min: 100, max: 9999})} University Drive, ${selectedUniversity.city}, ${selectedUniversity.state} ${faker.location.zipCode()}`,
     teacherTitle: title,
     teacherName: `${lastName}, ${firstName}`,
     teacherFirstName: firstName,
@@ -280,7 +345,7 @@ export const generateTeacherData = (lang = 'en') => {
     // Office Info
     office: T.officeFormat.replace('{building}', building).replace('{number}', officeNumber),
     phone: `(${faker.string.numeric(3)}) ${faker.string.numeric(3)}-${faker.string.numeric(4)} ext. ${phoneExt}`,
-    email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${selectedUniversity.name.toLowerCase().replace(/\s+/g, '')}.edu`,
+    email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${selectedUniversity.domain || selectedUniversity.name.toLowerCase().replace(/\s+/g, '') + '.edu'}`,
 
     // Academic Info
     department: selectedDepartment.name,
@@ -300,8 +365,9 @@ export const generateTeacherData = (lang = 'en') => {
     idCardSubtitle: T.idCardSubtitle,
     idColor: faker.helpers.arrayElement(['#dc2626', '#059669', '#7c3aed', '#d97706', '#0891b2']),
 
-    // Salary info (raw number; formatted at render time via formatMoney())
+    // Salary info
     baseSalary: baseSalary,
+    salaryFormatted: baseSalary.toLocaleString(tag, {style: 'currency', currency: 'USD'}),
 
     // Officials
     officials: {
