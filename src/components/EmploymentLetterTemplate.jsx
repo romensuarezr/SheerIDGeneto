@@ -1,12 +1,16 @@
 import React, { forwardRef } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const EmploymentLetterTemplate = forwardRef(({ data }, ref) => {
+  const { t } = useLanguage();
+  const localeTag = t('localeTag');
+
   return (
-    <div 
-      ref={ref} 
+    <div
+      ref={ref}
       style={{
-        width: '595px',  
-        height: '842px', 
+        width: '595px',
+        height: '842px',
         backgroundColor: '#ffffff',
         border: '1px solid #ffffff',
         padding: '0',
@@ -27,7 +31,7 @@ const EmploymentLetterTemplate = forwardRef(({ data }, ref) => {
         boxSizing: 'border-box'
       }}>
         {/* Letterhead */}
-        <div style={{ 
+        <div style={{
           textAlign: 'center',
           marginBottom: '25px',
           paddingBottom: '15px',
@@ -37,7 +41,7 @@ const EmploymentLetterTemplate = forwardRef(({ data }, ref) => {
             {data.universityName}
           </div>
           <div style={{ fontSize: '11px', color: '#000000', marginBottom: '3px' }}>
-            Office of Human Resources
+            {t('doc.employment.hrOffice')}
           </div>
           <div style={{ fontSize: '10px', color: '#000000', marginBottom: '5px' }}>
             {data.universityAddress}
@@ -50,88 +54,87 @@ const EmploymentLetterTemplate = forwardRef(({ data }, ref) => {
         {/* Date and Reference */}
         <div style={{ marginBottom: '20px', fontSize: '10px' }}>
           <div style={{ marginBottom: '5px' }}>
-            <strong>Date:</strong> {new Date().toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+            <strong>{t('doc.employment.date')}</strong> {new Date().toLocaleDateString(localeTag, {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
             })}
           </div>
           <div style={{ marginBottom: '5px' }}>
-            <strong>Reference No:</strong> HR-{new Date().getFullYear()}-{Math.floor(Math.random() * 10000)}
+            <strong>{t('doc.employment.referenceNo')}</strong> HR-{new Date().getFullYear()}-{Math.floor(Math.random() * 10000)}
           </div>
           <div style={{ marginBottom: '5px' }}>
-            <strong>Employee ID:</strong> {data.employeeID}
+            <strong>{t('doc.employment.employeeId')}</strong> {data.employeeID}
           </div>
         </div>
 
         {/* Salutation */}
         <div style={{ marginBottom: '15px', fontSize: '12px' }}>
-          To Whom It May Concern:
+          {t('doc.employment.toWhom')}
         </div>
 
         {/* Subject Line */}
         <div style={{ marginBottom: '15px', textAlign: 'center' }}>
           <div style={{ fontSize: '14px', fontWeight: 'bold', textDecoration: 'underline' }}>
-            EMPLOYMENT VERIFICATION
+            {t('doc.employment.title')}
           </div>
         </div>
 
         {/* Body */}
         <div style={{ marginBottom: '15px', fontSize: '11px' }}>
-          This is to certify that <strong>{data.teacherFullName}</strong> is currently employed as a 
-          full-time faculty member at {data.universityName}.
+          {t('doc.employment.body1')
+            .replace('{name}', data.teacherFullName)
+            .replace('{university}', data.universityName)}
         </div>
 
         {/* Employment Details */}
         <div style={{ marginBottom: '15px' }}>
           <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '8px', textAlign: 'center' }}>
-            EMPLOYMENT DETAILS
+            {t('doc.employment.detailsTitle')}
           </div>
           <div style={{ border: '1px solid #000000', fontSize: '10px' }}>
             <div style={{ padding: '4px', borderBottom: '1px solid #000000' }}>
-              <strong>Full Name:</strong> {data.teacherFullName}
+              <strong>{t('doc.employment.fullName')}</strong> {data.teacherFullName}
             </div>
             <div style={{ padding: '4px', borderBottom: '1px solid #000000' }}>
-              <strong>Employee ID:</strong> {data.employeeID}
+              <strong>{t('doc.employment.employeeId')}</strong> {data.employeeID}
             </div>
             <div style={{ padding: '4px', borderBottom: '1px solid #000000' }}>
-              <strong>Position:</strong> {data.position}
+              <strong>{t('doc.employment.position')}</strong> {data.position}
             </div>
             <div style={{ padding: '4px', borderBottom: '1px solid #000000' }}>
-              <strong>Department:</strong> {data.department}
+              <strong>{t('doc.employment.department')}</strong> {data.department}
             </div>
             <div style={{ padding: '4px', borderBottom: '1px solid #000000' }}>
-              <strong>College:</strong> {data.college}
+              <strong>{t('doc.employment.college')}</strong> {data.college}
             </div>
             <div style={{ padding: '4px', borderBottom: '1px solid #000000' }}>
-              <strong>Employment Status:</strong> Full-time Faculty Member
+              <strong>{t('doc.employment.employmentStatus')}</strong> {t('doc.employment.fullTime')}
             </div>
             <div style={{ padding: '4px' }}>
-              <strong>Date of Appointment:</strong> {data.hireDate}
+              <strong>{t('doc.employment.dateOfAppointment')}</strong> {data.hireDate}
             </div>
           </div>
         </div>
 
         <div style={{ marginBottom: '10px', fontSize: '11px' }}>
-          <strong>Employment Status:</strong> {data.teacherFullName} maintains active employment status 
-          and is in good standing with no disciplinary actions on record.
+          <strong>{t('doc.employment.employmentStatus')}</strong> {t('doc.employment.statusLine').replace('{name}', data.teacherFullName)}
         </div>
 
         <div style={{ marginBottom: '15px', fontSize: '11px' }}>
-          This verification is issued for official purposes at the employee's request. 
-          For additional verification, contact HR at (555) 123-4500.
+          {t('doc.employment.verificationNote')}
         </div>
 
         {/* Closing */}
         <div style={{ marginBottom: '20px', fontSize: '11px' }}>
-          <div>Respectfully yours,</div>
+          <div>{t('doc.employment.respectfully')}</div>
         </div>
 
         {/* Signature */}
         <div style={{ marginBottom: '25px' }}>
-          <div style={{ 
-            borderBottom: '1px solid #000000', 
-            width: '150px', 
+          <div style={{
+            borderBottom: '1px solid #000000',
+            width: '150px',
             marginBottom: '6px',
             height: '25px'
           }} />
@@ -139,7 +142,7 @@ const EmploymentLetterTemplate = forwardRef(({ data }, ref) => {
             {data.officials?.hr}
           </div>
           <div style={{ fontSize: '10px', marginBottom: '2px' }}>
-            Director, Human Resources
+            {t('doc.employment.directorHr')}
           </div>
           <div style={{ fontSize: '10px' }}>
             {data.universityName}
@@ -147,17 +150,17 @@ const EmploymentLetterTemplate = forwardRef(({ data }, ref) => {
         </div>
 
         {/* Footer */}
-        <div style={{ 
+        <div style={{
           borderTop: '1px solid #000000',
           paddingTop: '8px',
           fontSize: '8px',
           textAlign: 'center'
         }}>
           <div style={{ marginBottom: '2px', fontWeight: 'bold' }}>
-            EMPLOYMENT VERIFICATION
+            {t('doc.employment.title')}
           </div>
           <div>
-            This verification is issued for official purposes. Contact HR: (555) 123-4500 | Ref: {data.employeeID}
+            {t('doc.employment.footerNote').replace('{ref}', data.employeeID)}
           </div>
         </div>
       </div>

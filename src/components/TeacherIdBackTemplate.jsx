@@ -1,9 +1,12 @@
 import React, { forwardRef } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const TeacherIdBackTemplate = forwardRef(({ data }, ref) => {
+  const { t } = useLanguage();
+
   return (
-    <div 
-      ref={ref} 
+    <div
+      ref={ref}
       style={{
         width: '750px',
         height: '480px',
@@ -39,7 +42,7 @@ const TeacherIdBackTemplate = forwardRef(({ data }, ref) => {
             marginBottom: '9px',
             letterSpacing: '0.75px'
           }}>
-            FACULTY ADDRESS
+            {t('doc.teacherCard.facultyAddress')}
           </div>
           <div style={{ fontSize: '21px', color: '#333', lineHeight: 1.4 }}>
             {data.address}
@@ -54,9 +57,7 @@ const TeacherIdBackTemplate = forwardRef(({ data }, ref) => {
           margin: '22px 0',
           flex: 1
         }}>
-          This identification card is the property of {data.universityName} and must be returned upon request. 
-          Faculty members are required to carry this card while on university premises. 
-          If found, please return to the Human Resources Department.
+          {t('doc.teacherCard.notice').replace('{university}', data.universityName)}
         </div>
 
         {/* Contact Info */}
@@ -68,11 +69,11 @@ const TeacherIdBackTemplate = forwardRef(({ data }, ref) => {
             marginBottom: '9px',
             letterSpacing: '0.75px'
           }}>
-            EMERGENCY CONTACT
+            {t('doc.teacherCard.emergencyContact')}
           </div>
           <div style={{ fontSize: '16px', color: '#333', lineHeight: 1.4 }}>
-            University Security: (555) 123-4567<br/>
-            HR Department: (555) 123-4500
+            {t('doc.teacherCard.universitySecurity')} (555) 123-4567<br/>
+            {t('doc.teacherCard.hrDepartment')} (555) 123-4500
           </div>
         </div>
 
@@ -93,7 +94,7 @@ const TeacherIdBackTemplate = forwardRef(({ data }, ref) => {
               {data.teacherFullName}
             </div>
             <div style={{ fontSize: '15px', color: '#999' }}>
-              Faculty Signature
+              {t('doc.teacherCard.facultySignature')}
             </div>
           </div>
           <div style={{ width: '120px', height: '120px' }}>

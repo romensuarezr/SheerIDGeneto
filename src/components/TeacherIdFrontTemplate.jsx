@@ -1,9 +1,12 @@
 import React, { forwardRef } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const TeacherIdFrontTemplate = forwardRef(({ data }, ref) => {
+  const { t } = useLanguage();
+
   return (
-    <div 
-      ref={ref} 
+    <div
+      ref={ref}
       style={{
         width: '750px',
         height: '480px',
@@ -51,7 +54,7 @@ const TeacherIdFrontTemplate = forwardRef(({ data }, ref) => {
             {data.universityName}
           </div>
           <div style={{ fontSize: '18px', opacity: 0.95, lineHeight: 1.3, textTransform: 'uppercase' }}>
-            {data.idCardSubtitle || 'FACULTY IDENTIFICATION CARD'}
+            {data.idCardSubtitle}
           </div>
         </div>
       </div>
@@ -83,7 +86,7 @@ const TeacherIdFrontTemplate = forwardRef(({ data }, ref) => {
             <img src={data.teacherPhoto} alt="Teacher" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
             <div style={{ color: '#999', fontSize: '16px', textAlign: 'center' }}>
-              PHOTO<br/>3x4
+              {t('doc.teacherCard.photo')}<br/>3x4
             </div>
           )}
         </div>
@@ -98,7 +101,7 @@ const TeacherIdFrontTemplate = forwardRef(({ data }, ref) => {
         }}>
           <div style={{ marginBottom: '12px' }}>
             <div style={{ fontSize: '15px', color: '#666', textTransform: 'uppercase', letterSpacing: '0.75px', marginBottom: '3px' }}>
-              NAME
+              {t('doc.teacherCard.name')}
             </div>
             <div style={{ fontSize: '24px', fontWeight: 500, color: '#333' }}>
               {data.teacherFullName}
@@ -107,7 +110,7 @@ const TeacherIdFrontTemplate = forwardRef(({ data }, ref) => {
 
           <div style={{ marginBottom: '12px' }}>
             <div style={{ fontSize: '15px', color: '#666', textTransform: 'uppercase', letterSpacing: '0.75px', marginBottom: '3px' }}>
-              EMPLOYEE ID
+              {t('doc.teacherCard.employeeId')}
             </div>
             <div style={{ fontSize: '24px', fontWeight: 500, color: '#333' }}>
               {data.employeeID}
@@ -116,7 +119,7 @@ const TeacherIdFrontTemplate = forwardRef(({ data }, ref) => {
 
           <div style={{ marginBottom: '12px' }}>
             <div style={{ fontSize: '15px', color: '#666', textTransform: 'uppercase', letterSpacing: '0.75px', marginBottom: '3px' }}>
-              DEPARTMENT
+              {t('doc.teacherCard.department')}
             </div>
             <div style={{ fontSize: '24px', fontWeight: 500, color: '#333' }}>
               {data.department}
@@ -125,7 +128,7 @@ const TeacherIdFrontTemplate = forwardRef(({ data }, ref) => {
 
           <div style={{ marginBottom: '12px' }}>
             <div style={{ fontSize: '15px', color: '#666', textTransform: 'uppercase', letterSpacing: '0.75px', marginBottom: '3px' }}>
-              POSITION
+              {t('doc.teacherCard.position')}
             </div>
             <div style={{ fontSize: '24px', fontWeight: 500, color: '#333' }}>
               {data.position}
@@ -147,7 +150,7 @@ const TeacherIdFrontTemplate = forwardRef(({ data }, ref) => {
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '13px', color: '#666', textTransform: 'uppercase', marginBottom: '3px' }}>
-            ISSUE DATE
+            {t('doc.teacherCard.issueDate')}
           </div>
           <div style={{ fontSize: '19px', fontWeight: 500, color: '#333' }}>
             {data.idIssueDate || '—'}
@@ -155,7 +158,7 @@ const TeacherIdFrontTemplate = forwardRef(({ data }, ref) => {
         </div>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '13px', color: '#666', textTransform: 'uppercase', marginBottom: '3px' }}>
-            VALID UNTIL
+            {t('doc.teacherCard.validUntil')}
           </div>
           <div style={{ fontSize: '19px', fontWeight: 500, color: '#333' }}>
             {data.idValidDate || '—'}
