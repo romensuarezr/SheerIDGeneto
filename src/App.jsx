@@ -9,6 +9,7 @@ import { formatUniversityAddress, resolveDomain, emailFor } from './utils/univer
 import { fakerES, fakerEN } from '@faker-js/faker';
 import { useLanguage } from './i18n/LanguageContext';
 import UniversityPicker from './components/UniversityPicker';
+import ProgramPicker from './components/ProgramPicker';
 
 import TuitionTemplate from './components/TuitionTemplate';
 import TranscriptTemplate from './components/TranscriptTemplate';
@@ -81,6 +82,21 @@ const App = () => {
       }
       return next;
     });
+  };
+
+  // Free text in the program picker: keep it, don't touch major/college.
+  const handleProgramTextChange = (text) => {
+    setFormData(prev => ({ ...prev, program: text }));
+  };
+
+  // Explicit program selection: fill program + its major + college together.
+  const handleProgramSelect = (item) => {
+    setFormData(prev => ({
+      ...prev,
+      program: item.program,
+      major: item.major,
+      college: item.college,
+    }));
   };
 
   const handleLogoUpload = (e) => {
@@ -627,7 +643,7 @@ const App = () => {
                   
                   <Input label={t('ui.term')} name="term" value={formData.term} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
                   <Input label={t('ui.major')} name="major" value={formData.major} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
-                  <Input label={t('ui.program')} name="program" value={formData.program} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+                  <ProgramPicker label={t('ui.program')} value={formData.program} onSelect={handleProgramSelect} onTextChange={handleProgramTextChange} />
                   <Input label={t('ui.college')} name="college" value={formData.college} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
                 </>
               ) : (
