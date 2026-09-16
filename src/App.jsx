@@ -160,16 +160,12 @@ const App = () => {
     }));
   };
 
+  // Switching language only re-renders the UI: form data (names, university,
+  // amounts) is preserved. Amounts re-format via formatMoney; only the
+  // regenerate button creates new random data.
   const handleLanguageChange = (newLang) => {
     if (!newLang || newLang === lang) return;
     setLang(newLang);
-    const newData = userMode === "student" ? generateRandomData(newLang) : generateTeacherData(newLang);
-    setFormData(prev => ({
-        ...newData,
-        universityLogo: prev.universityLogo,
-        studentPhoto: prev.studentPhoto || prev.teacherPhoto,
-        teacherPhoto: prev.teacherPhoto || prev.studentPhoto
-    }));
   };
 
   const exportStitched = async (forceHorizontal = false) => {
@@ -247,6 +243,32 @@ const App = () => {
     }
   };
 
+  // Filesystem-safe token for download filenames: drop the "Dr." title,
+  // strip diacritics, collapse whitespace to underscores, remove unsafe chars.
+  const filenameToken = (value) =>
+    (value || '')
+      .replace(/^Dr\.\s*/i, '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .replace(/\s+/g, '_')
+      .replace(/[^a-zA-Z0-9_\-]/g, '')
+      .replace(/_+/g, '_')
+      .replace(/^_|_$/g, '') || 'document';
+
+  // e.g. Romen_Suarez-Miva_Open_University-Student-EN-20260916.zip
+  // (appends _WithID when the ID card is included)
+  const zipFilename = () => {
+    const person = filenameToken(userMode === 'student' ? formData.studentName : formData.teacherFullName);
+    const uni = filenameToken(formData.universityName);
+    const role = userMode === 'student' ? 'Student' : 'Teacher';
+    const langTag = (lang || 'en').toUpperCase();
+    const d = new Date();
+    const dateTag = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+    const cardTag = includeStudentCard ? '_WithID' : '';
+    return `${person}-${uni}-${role}-${langTag}-${dateTag}${cardTag}.zip`;
+  };
+
   const exportZipped = async () => {
     setIsGenerating(true);
     try {
@@ -301,8 +323,7 @@ const App = () => {
       });
 
       const content = await zip.generateAsync({type:"blob"});
-      const filename = includeStudentCard ? "SheerID_Documents_WithID.zip" : "SheerID_Documents.zip";
-      saveAs(content, filename);
+      saveAs(content, zipFilename());
       setIsGenerating(false);
 
     } catch (err) {
