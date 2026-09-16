@@ -717,6 +717,8 @@ const App = () => {
               <Input label={t('ui.dueDate')} name="dueDate" value={formData.dueDate} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
               <Input label={t('ui.issueDate')} name="issueDate" value={formData.issueDate} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
               <Input label={t('ui.admissionDate')} name="admissionDate" value={formData.admissionDate || ''} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+              <Input label={t('ui.admissionTerm')} name="admissionTerm" value={formData.admissionTerm || ''} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
+              <Input label={t('ui.programStart')} name="programStart" value={formData.programStart || ''} onChange={handleInputChange} variant="bordered" labelPlacement="outside" size="sm" />
               
               <Divider className="my-1" />
               <h3 className="text-sm font-semibold text-foreground/70">{t('ui.idCardSection')}</h3>

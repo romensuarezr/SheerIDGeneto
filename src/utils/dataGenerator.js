@@ -17,11 +17,21 @@ export const generateRandomData = (lang = 'en') => {
   const D = dataFor(lang);
   const tag = localeTagFor(lang);
 
-  // Generate a past date for statement
-  const statementDate = faker.date.past({ years: 0.5 });
-  // Due date is typically 2-4 weeks after statement
+  // Coherent academic timeline, anchored to the current year.
+  // Current term = most recent of September / February.
+  const now = new Date();
+  const curYear = now.getFullYear();
+  const termStart = new Date(curYear, now.getMonth() >= 7 ? 8 : 1, 1);
+
+  // Admission: random term start within the current year (Feb or Sep), day 1-10
+  const admissionDate = new Date(curYear, faker.helpers.arrayElement([1, 8]), faker.number.int({ min: 1, max: 10 }));
+
+  // Statement: random day within the first 3 weeks of the current term
+  const statementDate = new Date(termStart);
+  statementDate.setDate(faker.number.int({ min: 1, max: 21 }));
+  // Due date is 30-45 days after statement
   const dueDate = new Date(statementDate);
-  dueDate.setDate(dueDate.getDate() + faker.number.int({ min: 14, max: 30 }));
+  dueDate.setDate(dueDate.getDate() + faker.number.int({ min: 30, max: 45 }));
 
   // Issue date typically current or very recent
   const issueDate = faker.date.recent({ days: 5 });
@@ -129,13 +139,7 @@ export const generateRandomData = (lang = 'en') => {
   const totalFees = Object.values(fees).reduce((a, b) => a + b, 0) + diffTuition;
   const totalCharges = baseTuition + totalFees;
 
-  // Admission date: 1-3 years ago (ensures student card remains valid)
-  const yearsEnrolled = faker.number.int({ min: 1, max: 3 });
-  const admissionDate = new Date();
-  admissionDate.setFullYear(admissionDate.getFullYear() - yearsEnrolled);
-  // Randomize to a semester start (Aug/Sep or Jan/Feb)
-  admissionDate.setMonth(faker.helpers.arrayElement([0, 1, 7, 8]));
-  admissionDate.setDate(faker.number.int({ min: 15, max: 28 }));
+  // (admissionDate is computed above, in the current year)
 
   // Student Card issued 1-4 weeks after admission
   const cardIssueDate = new Date(admissionDate);
@@ -144,6 +148,15 @@ export const generateRandomData = (lang = 'en') => {
   // Valid for 4 years from issue
   const cardValidDate = new Date(cardIssueDate);
   cardValidDate.setFullYear(cardValidDate.getFullYear() + 4);
+
+  // Term labels derived from the computed dates (no hardcoded years)
+  const isFallTerm = termStart.getMonth() === 8;
+  const termLabel = `${isFallTerm ? D.terms.fall : D.terms.spring} ${curYear}`;
+  const nextTermLabel = `${isFallTerm ? D.terms.spring : D.terms.fall} ${isFallTerm ? curYear + 1 : curYear}`;
+  const admIsFall = admissionDate.getMonth() === 8;
+  const admissionTerm = `${admIsFall ? D.terms.fall : D.terms.spring} ${curYear}`;
+  // "September 2026" / "septiembre de 2026" — editable from the sidebar
+  const programStart = admissionDate.toLocaleDateString(tag, { month: 'long', year: 'numeric' });
 
   return {
     universityName: university,
@@ -161,8 +174,10 @@ export const generateRandomData = (lang = 'en') => {
     ),
     passportNumber: faker.string.alphanumeric(9).toUpperCase(), // Added passport
     address: `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state()}`,
-    term: D.terms.current,
-    nextTerm: D.terms.next,
+    term: termLabel,
+    nextTerm: nextTermLabel,
+    admissionTerm,
+    programStart,
     major: selectedMajor.name,
     program: faker.helpers.arrayElement(selectedMajor.programs),
     college: selectedMajor.college,

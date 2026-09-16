@@ -70,6 +70,8 @@ export const translations = {
       dueDate: 'Due Date',
       issueDate: 'Issue Date',
       admissionDate: 'Admission Date',
+      admissionTerm: 'Admission term',
+      programStart: 'Program start',
       idCardSection: 'Student ID Card',
       cardSubtitle: 'Card Subtitle',
       cardIssueDate: 'Card Issue Date',
@@ -186,7 +188,7 @@ export const translations = {
         program: 'Program:',
         major: 'Major:',
         college: 'College:',
-        body2: 'Your program is expected to commence in August 2024. Please report to the International Student Office upon arrival to finalize your registration. This offer is contingent upon the verification of your final official transcripts and other required documents.',
+        body2: 'Your program is expected to commence in {monthYear}. Please report to the International Student Office upon arrival to finalize your registration. This offer is contingent upon the verification of your final official transcripts and other required documents.',
         body3: 'Congratulations on your acceptance! We look forward to welcoming you to campus.',
         deanOfAdmissions: 'Dean of Admissions',
         officialSeal: 'OFFICIAL SEAL',
@@ -294,7 +296,7 @@ export const translations = {
       },
     },
     data: {
-      terms: { current: 'Fall 2024', next: 'Spring 2025' },
+      terms: { fall: 'Fall', spring: 'Spring' },
       university: 'Hachimi University',
       majors: [
         {
@@ -566,6 +568,8 @@ export const translations = {
       dueDate: 'Fecha vencimiento',
       issueDate: 'Fecha emisión',
       admissionDate: 'Fecha de admisión',
+      admissionTerm: 'Trimestre de admisión',
+      programStart: 'Inicio del programa',
       idCardSection: 'Tarjeta de estudiante',
       cardSubtitle: 'Subtítulo tarjeta',
       cardIssueDate: 'Fecha emisión tarjeta',
@@ -682,7 +686,7 @@ export const translations = {
         program: 'Programa:',
         major: 'Especialidad:',
         college: 'Facultad:',
-        body2: 'Se prevé que su programa comience en agosto de 2024. A su llegada, preséntese en la Oficina de Estudiantes Internacionales para finalizar su matrícula. Esta oferta está condicionada a la verificación de sus expedientes oficiales finales y demás documentos requeridos.',
+        body2: 'Se prevé que su programa comience en {monthYear}. A su llegada, preséntese en la Oficina de Estudiantes Internacionales para finalizar su matrícula. Esta oferta está condicionada a la verificación de sus expedientes oficiales finales y demás documentos requeridos.',
         body3: '¡Enhorabuena por su admisión! Esperamos darle la bienvenida al campus.',
         deanOfAdmissions: 'Decano de Admisiones',
         officialSeal: 'SELLO OFICIAL',
@@ -790,7 +794,7 @@ export const translations = {
       },
     },
     data: {
-      terms: { current: 'Otoño 2024', next: 'Primavera 2025' },
+      terms: { fall: 'Otoño', spring: 'Primavera' },
       university: 'Hachimi University',
       majors: [
         {
