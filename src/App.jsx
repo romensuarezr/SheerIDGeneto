@@ -227,7 +227,7 @@ const App = () => {
       });
       
       canvas.toBlob((blob) => {
-        saveAs(blob, "SheerID_Documents_Combined.png");
+        saveAs(blob, `${personToken()}-${lang === "es" ? "Combinado" : "Combined"}.png`);
         setIsGenerating(false);
         
         // Restore styles and remove class
@@ -269,6 +269,15 @@ const App = () => {
     return `${person}-${uni}-${role}-${langTag}-${dateTag}${cardTag}.zip`;
   };
 
+  // Person token reused for document files (student name, or teacher name w/o "Dr.")
+  const personToken = () =>
+    filenameToken(userMode === 'student' ? formData.studentName : formData.teacherFullName);
+
+  // Individual document file: "{Persona}-{Documento}.png", with the document
+  // name in the active UI language, e.g. Romen_Suarez-Carta_de_admision.png
+  const docFilename = (docKey) =>
+    `${personToken()}-${filenameToken(t(`ui.docs.${docKey}`))}.png`;
+
   const exportZipped = async () => {
     setIsGenerating(true);
     try {
@@ -288,30 +297,30 @@ const App = () => {
       
       if (userMode === "student") {
         imagesToCapture = [
-          capture(hiddenTuitionRef, "Tuition_Statement.png"),
-          capture(hiddenTranscriptRef, "Transcript.png"),
-          capture(hiddenScheduleRef, "Schedule.png"),
-          capture(hiddenAdmissionRef, "Admission_Letter.png"),
-          capture(hiddenEnrollmentRef, "Enrollment_Certificate.png")
+          capture(hiddenTuitionRef, docFilename("tuitionStatement")),
+          capture(hiddenTranscriptRef, docFilename("transcript")),
+          capture(hiddenScheduleRef, docFilename("courseSchedule")),
+          capture(hiddenAdmissionRef, docFilename("admissionLetter")),
+          capture(hiddenEnrollmentRef, docFilename("enrollmentCert"))
         ];
 
         if (includeStudentCard) {
           imagesToCapture.push(
-            capture(hiddenCardFrontRef, "Student_ID_Front.png"),
-            capture(hiddenCardBackRef, "Student_ID_Back.png")
+            capture(hiddenCardFrontRef, docFilename("studentIdFront")),
+            capture(hiddenCardBackRef, docFilename("studentIdBack"))
           );
         }
       } else {
         imagesToCapture = [
-          capture(hiddenTeachingCertRef, "Teaching_Certificate.png"),
-          capture(hiddenEmploymentLetterRef, "Employment_Letter.png"),
-          capture(hiddenSalaryStatementRef, "Salary_Statement.png")
+          capture(hiddenTeachingCertRef, docFilename("teachingCertificate")),
+          capture(hiddenEmploymentLetterRef, docFilename("employmentLetter")),
+          capture(hiddenSalaryStatementRef, docFilename("salaryStatement"))
         ];
 
         if (includeStudentCard) {
           imagesToCapture.push(
-            capture(hiddenTeacherIdFrontRef, "Faculty_ID_Front.png"),
-            capture(hiddenTeacherIdBackRef, "Faculty_ID_Back.png")
+            capture(hiddenTeacherIdFrontRef, docFilename("facultyIdFront")),
+            capture(hiddenTeacherIdBackRef, docFilename("facultyIdBack"))
           );
         }
       }
@@ -521,7 +530,7 @@ const App = () => {
               color="default" 
               variant="flat"
               size="sm"
-              onClick={() => exportSingle(hiddenAdmissionRef, "Admission_Letter.png")}
+              onClick={() => exportSingle(hiddenAdmissionRef, docFilename("admissionLetter"))}
               isLoading={isGenerating}
             >
               {t('ui.admission')}
@@ -530,7 +539,7 @@ const App = () => {
               color="default" 
               variant="flat"
               size="sm"
-              onClick={() => exportSingle(hiddenEnrollmentRef, "Enrollment_Certificate.png")}
+              onClick={() => exportSingle(hiddenEnrollmentRef, docFilename("enrollmentCert"))}
               isLoading={isGenerating}
             >
               {t('ui.enrollment')}
@@ -539,7 +548,7 @@ const App = () => {
               color="default" 
               variant="flat"
               size="sm"
-              onClick={() => exportSingle(hiddenCardFrontRef, "Student_ID_Front.png")}
+              onClick={() => exportSingle(hiddenCardFrontRef, docFilename("studentIdFront"))}
               isLoading={isGenerating}
             >
               {t('ui.idFront')}
@@ -548,7 +557,7 @@ const App = () => {
               color="default" 
               variant="flat"
               size="sm"
-              onClick={() => exportSingle(hiddenCardBackRef, "Student_ID_Back.png")}
+              onClick={() => exportSingle(hiddenCardBackRef, docFilename("studentIdBack"))}
               isLoading={isGenerating}
             >
               {t('ui.idBack')}
@@ -560,7 +569,7 @@ const App = () => {
               color="default" 
               variant="flat"
               size="sm"
-              onClick={() => exportSingle(hiddenTeachingCertRef, "Teaching_Certificate.png")}
+              onClick={() => exportSingle(hiddenTeachingCertRef, docFilename("teachingCertificate"))}
               isLoading={isGenerating}
             >
               {t('ui.certificate')}
@@ -569,7 +578,7 @@ const App = () => {
               color="default" 
               variant="flat"
               size="sm"
-              onClick={() => exportSingle(hiddenEmploymentLetterRef, "Employment_Letter.png")}
+              onClick={() => exportSingle(hiddenEmploymentLetterRef, docFilename("employmentLetter"))}
               isLoading={isGenerating}
             >
               {t('ui.employment')}
@@ -578,7 +587,7 @@ const App = () => {
               color="default" 
               variant="flat"
               size="sm"
-              onClick={() => exportSingle(hiddenSalaryStatementRef, "Salary_Statement.png")}
+              onClick={() => exportSingle(hiddenSalaryStatementRef, docFilename("salaryStatement"))}
               isLoading={isGenerating}
             >
               {t('ui.salary')}
@@ -587,7 +596,7 @@ const App = () => {
               color="default" 
               variant="flat"
               size="sm"
-              onClick={() => exportSingle(hiddenTeacherIdFrontRef, "Teacher_ID_Front.png")}
+              onClick={() => exportSingle(hiddenTeacherIdFrontRef, docFilename("facultyIdFront"))}
               isLoading={isGenerating}
             >
               {t('ui.idFront')}
@@ -596,7 +605,7 @@ const App = () => {
               color="default" 
               variant="flat"
               size="sm"
-              onClick={() => exportSingle(hiddenTeacherIdBackRef, "Teacher_ID_Back.png")}
+              onClick={() => exportSingle(hiddenTeacherIdBackRef, docFilename("facultyIdBack"))}
               isLoading={isGenerating}
             >
               {t('ui.idBack')}
