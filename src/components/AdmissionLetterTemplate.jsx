@@ -45,7 +45,7 @@ const AdmissionLetterTemplate = forwardRef(({ data }, ref) => {
                 <strong>{t('doc.admission.dear').replace('{name}', data.studentName)}</strong>
             </p>
             <p style={{ marginBottom: '20px', textIndent: '2em' }}>
-                {t('doc.admission.body1').replace('{university}', data.universityName).replace('{term}', data.term)}
+                {t('doc.admission.body1').replace('{university}', data.universityName).replace('{term}', data.admissionTerm || data.term)}
             </p>
 
             <div style={{ backgroundColor: '#f8f9fa', padding: '25px', margin: '30px 0', borderLeft: '4px solid #1a365d' }}>
@@ -80,7 +80,7 @@ const AdmissionLetterTemplate = forwardRef(({ data }, ref) => {
             </div>
 
             <p style={{ marginBottom: '20px', textIndent: '2em' }}>
-                {t('doc.admission.body2')}
+                {t('doc.admission.body2').replace('{monthYear}', data.programStart || '')}
             </p>
             <p style={{ marginBottom: '20px' }}>
                 {t('doc.admission.body3')}
