@@ -276,7 +276,7 @@ const App = () => {
   // Individual document file: "{Persona}-{Documento}.png", with the document
   // name in the active UI language, e.g. Romen_Suarez-Carta_de_admision.png
   const docFilename = (docKey) =>
-    `${personToken()}-${filenameToken(t(`ui.docs.${docKey}`))}.png`;
+    `${personToken()}-${filenameToken(t(`ui.labels.${docKey}`))}.png`;
 
   const exportZipped = async () => {
     setIsGenerating(true);
